@@ -14,6 +14,8 @@ function App() {
   const [searchInput, setSearchInput] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [albums, setAlbums] = useState([])
+  const [tracks, setTracks] = useState([])
+  
 
   useEffect(() => {
     //API Access Token
@@ -56,6 +58,15 @@ function App() {
     })
     // console.log(albums)
     //Display those albums to the user
+
+    const returnedTracks = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track', searchParameters)
+    .then(response => response.json())
+    .then(data => {
+      setTracks(data.tracks.items)
+    })
+
+    // console.log(tracks)
+
   }
 
   function onChangeEvent (event) {
