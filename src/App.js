@@ -1,8 +1,7 @@
-import logo from './logo.svg';
 import './App.css';
 import { eventWrapper } from '@testing-library/user-event/dist/utils';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container, InputGroup,FormControl, Button, Row, Card} from 'react-bootstrap';
+import {Container, InputGroup, FormControl, Button, Row, Card, Form, Stack} from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { getAllByTestId } from '@testing-library/react';
 
@@ -15,7 +14,8 @@ function App() {
   const [accessToken, setAccessToken] = useState('')
   const [albums, setAlbums] = useState([])
   const [tracks, setTracks] = useState([])
-  
+  const [playlistTracksID, setPlaylistTracksID] = useState([])
+  const [playlistStatus, setPlaylistStatus] = useState(false)
 
   useEffect(() => {
     //API Access Token
@@ -65,7 +65,7 @@ function App() {
       setTracks(data.tracks.items)
     })
 
-    // console.log(tracks)
+    // console.log(tracks.map((track, i) => track.id))
 
   }
 
@@ -77,11 +77,34 @@ function App() {
     search()
   }
 
+  function handleSaveToSpotify (newTrackID) {
+    // console.log('this is the needed value' + newTrackID)
+    setPlaylistTracksID(prevPlaylistTracksID => ([
+      ...prevPlaylistTracksID,
+      newTrackID
+    ]))
+  }
+  // console.log(playlistTracksID)
+
+  function handlePlaylistStatusChange () {
+    setPlaylistStatus(prevStatus => !prevStatus)
+  }
+  // console.log(playlistStatus)
+  
   return (
     <div className="App">
       <h1>Jammming</h1>
       <SearchBar handleEventChangeProp={onChangeEvent} handleSearchProp={handleSearch}/>
-      <SearchResults generatedAlbums={albums}/>
+      <Playlist 
+        playlistProp={playlistTracksID}
+        playlistStatusProp={playlistStatus}
+        playlistStatusChangeProp={handlePlaylistStatusChange}
+      />
+      <SearchResults 
+        generatedAlbumsProp={albums} 
+        generatedTracksProp={tracks} 
+        tracksOnPlaylistProp={handleSaveToSpotify}
+      />
     </div>
   );
 }
@@ -91,12 +114,12 @@ export default App;
 function SearchBar(props) {
   return (
     <Container>
-      <InputGroup className='mb-3' size='large'>
+      <InputGroup className='m-2' size='large'>
         <FormControl
-          placeholder='Search for artist'
+          placeholder='Search for title'
           type='input'
           onKeyPress={event => {
-            if(event.key == 'Enter') {
+            if(event.key === 'Enter') {
             props.handleSearchProp()
           }}}
           onChange={props.handleEventChangeProp}
@@ -108,11 +131,63 @@ function SearchBar(props) {
 }
 
 function SearchResults (props) {
+  return (
+    <Tracklist 
+      tracksProp={props.generatedTracksProp}
+      addToPlaylistProp={props.tracksOnPlaylistProp}  
+    />
+  )
+}
 
+function Playlist (props) {
+  return (
+    <Container>
+      <Row className='m-2 row'>
+        {props.playlistProp.length > 0 && 
+        <Stack direction='horizontal' gap={3} className=' col row-cols-2'>
+          <Form.Text className='mt-2' size='large'>There are {props.playlistProp.length} items in the Playlist:</Form.Text>
+          <Button 
+          variant={props.playlistStatusProp ? 'outline-danger' : 'outline-success'}
+          onClick={props.playlistStatusChangeProp}
+          className='row-cols-4'>{props.playlistStatusProp ? 'Close Playlist' : 'Open Playlist'}</Button>
+        </Stack>
+        }
+      </Row>
+      <Row className='mx-2 row row-cols-4'>
+        {props.playlistProp.map(track => {
+          if (props.playlistStatusProp){
+          return (
+            <Card key={track.id} className='mb-2'>
+              <Card.Img src={track.album.images[0].url} className='mt-2'/>
+              <Card.Body>
+                <Card.Title>Track: {track.name}</Card.Title>
+                <Card.Subtitle className='mb-2 text-muted'>Artist: {track.artists[0].name}</Card.Subtitle>
+                <Card.Subtitle className='text-muted'>Album: {track.album.name}</Card.Subtitle>
+              </Card.Body>
+            </Card>
+          )}
+        })} 
+      </Row>
+      <br />
+    </Container>
+  )
+}
+
+function Tracklist (props) {
   return (
     <Container>
       <Row className='mx-2 row row-cols-4'> 
-        {props.generatedAlbums.map((album, i) => {
+        {props.tracksProp.map((track, i) => {
+          // console.log(track)
+          return (
+            <Track 
+              track={track}
+              addToPlaylist={props.addToPlaylistProp}
+            />
+          )
+        })}
+      {/* working code for generating albums from api, should be connected with respective props
+        {props.generatedAlbumsProp.map((album, i) => {
           // console.log(album)
           return (
          <Card>
@@ -122,29 +197,25 @@ function SearchResults (props) {
           </Card.Body>
         </Card>
           )
-        })}
+        })} */}
       </Row>
     </Container>
   )
 }
-function Playlist () {
+function Track (props) {
+
   return (
-    <div>
-      Playlist
-    </div>
-  )
-}
-function Tracklist () {
-  return (
-    <div>
-      Tracklist
-    </div>
-  )
-}
-function Track () {
-  return (
-    <div>
-      Track
-    </div>
+    <Card key={props.track.id} className='mb-2'>
+      <Card.Img src={props.track.album.images[0].url} className='mt-2'/>
+      <Card.Body>
+        <Card.Title>{props.track.name}</Card.Title>
+        <Card.Subtitle className='mb-2 text-muted'>Artist: {props.track.artists[0].name}</Card.Subtitle>
+        <Card.Subtitle className='text-muted'>Album: {props.track.album.name}</Card.Subtitle>
+      </Card.Body>
+      <Button 
+        variant='primary' 
+        className='mb-2' 
+        onClick={()=> {props.addToPlaylist(props.track)}}>Save to Spotify</Button>
+    </Card>
   )
 }
