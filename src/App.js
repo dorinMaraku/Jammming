@@ -1,7 +1,7 @@
 import './App.css';
 import { eventWrapper } from '@testing-library/user-event/dist/utils';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container, InputGroup, FormControl, Button, Row, Card, Form, Col, FormGroup} from 'react-bootstrap';
+import {Container, InputGroup, FormControl, Button, Row, Card, Form, Col, Stack, ThemeProvider} from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { getAllByTestId } from '@testing-library/react';
 
@@ -10,13 +10,15 @@ const CLIENT_SECRET = '6468faf416154649857cf0fc1d7ae07e';
 
 
 function App() {
-  const [searchInput, setSearchInput] = useState(null)
+  const [searchInput, setSearchInput] = useState('')
   const [accessToken, setAccessToken] = useState('')
   const [albums, setAlbums] = useState([])
   const [tracks, setTracks] = useState([])
-  const [playlistTracksID, setPlaylistTracksID] = useState([])
+  const [playlistTracks, setPlaylistTracks] = useState([])
   const [playlistStatus, setPlaylistStatus] = useState(false)
+  const [playlistNameStatus, setPlaylistNameStatus] = useState(false)
   const [playlistName, setPlaylistName] = useState('')
+  const [playlistURIs, setPlaylistURIs] = useState([])
 
   useEffect(() => {
     //API Access Token
@@ -65,32 +67,37 @@ function App() {
     .then(data => {
       setTracks(data.tracks.items)
     })
-
-    // console.log(tracks.map((track, i) => track.id))
-
+    // console.log(tracks.map(track => track.id))
   }
 
   function onChangeEvent (event) {
-    setSearchInput(event.target.value)
+      setSearchInput(event.target.value)
   }
 
   function handleSearch() {
-    search()
-  }
-
-  function handleAddToPlaylist (newTrackID) {
-    // console.log('this is the needed value' + newTrackID)
-    if (playlistTracksID.includes(newTrackID)) {
-      return playlistTracksID
+    if (searchInput === '') {
+      alert('Please provide a title...')
     }
     else {
-    setPlaylistTracksID(prevPlaylistTracksID => ([
-      ...prevPlaylistTracksID,
-      newTrackID
-    ]))
+      search()
+  }}
+
+  function handleAddToPlaylist (newTrack, newURI) {
+    // console.log('this is the needed value' + newTrackID)
+    if (playlistTracks.includes(newTrack)) {
+      return playlistTracks
+    }
+    else {
+      setPlaylistTracks(prevPlaylistTracks => ([
+        ...prevPlaylistTracks,
+        newTrack
+      ]))
+      setPlaylistURIs(prevPlaylistURIs => ([
+        ...prevPlaylistURIs,
+        newURI]))
     }
   }
-  // console.log(playlistTracksID)
+  // console.log(playlistTracks)
 
   function handlePlaylistStatusChange () {
     setPlaylistStatus(prevStatus => !prevStatus)
@@ -100,36 +107,67 @@ function App() {
   function handlePlaylistName (event) {
     setPlaylistName(event.target.value)
   }
-  function deleteFromPlaylist(ownTrackID) {
-    // console.log('item to be deleted' + ownTrack)
-    setPlaylistTracksID(prevPlaylistTracksID => 
-      prevPlaylistTracksID.filter(track => 
-        track.id!== ownTrackID
-      )
-    )
+
+  function handleSavePlaylistNameToggle () {
+    setPlaylistNameStatus(prevPlaylistNameStatus => !prevPlaylistNameStatus)
   }
-  
+  // console.log(playlistNameStatus)
+
+  function deleteFromPlaylist(ownTrackID, ownTrackURI) {
+    // console.log('item to be deleted' + ownTrack)
+    setPlaylistTracks(prevPlaylistTracks => 
+      prevPlaylistTracks.filter(track => 
+        track.id !== ownTrackID
+      ))
+    setPlaylistURIs(prevPlaylistURIs=> 
+      prevPlaylistURIs.filter(itemURI => 
+        itemURI !== ownTrackURI
+      ))
+  }
+
+  function resetPlaylist () {
+    setPlaylistTracks(([]))
+    setPlaylistURIs(([]))
+  }
+
+  function handleSaveToSpotify () {
+    resetPlaylist()
+    console.log('saved and reset URIs to:' + playlistURIs +' and tracks to '+ playlistTracks ) 
+  }
+
+
   return (
     <div className="App">
-      <h1>Jammming</h1>
-      <SearchBar 
-        handleEventChangeProp={onChangeEvent} 
-        searchInputProp={searchInput}
-        handleSearchProp={handleSearch}
-      />
-      <Playlist 
-        playlistProp={playlistTracksID}
-        playlistStatusProp={playlistStatus}
-        playlistStatusChangeProp={handlePlaylistStatusChange}
-        playlistNameProp={playlistName}
-        handlePlaylistNameProp={handlePlaylistName}
-        handleDeleteFromPlaylistProp={deleteFromPlaylist}
-      />
-      <SearchResults 
-        generatedAlbumsProp={albums} 
-        generatedTracksProp={tracks} 
-        tracksOnPlaylistProp={handleAddToPlaylist}
-      />
+      <ThemeProvider 
+        breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
+        minBreakpoint="xxs"> 
+
+        <h1 style={{paddingBlock:'20px'}}>Jammming</h1>
+
+        <SearchBar 
+          handleEventChangeProp={onChangeEvent} 
+          searchInputProp={searchInput}
+          handleSearchProp={handleSearch}
+          />
+
+        <Playlist 
+          playlistProp={playlistTracks}
+          playlistStatusProp={playlistStatus}
+          playlistStatusChangeProp={handlePlaylistStatusChange}
+          playlistNameProp={playlistName}
+          handlePlaylistNameProp={handlePlaylistName}
+          handlePlaylistNameToggle={playlistNameStatus}
+          handlePlaylistNameStatusProp={handleSavePlaylistNameToggle}
+          handleDeleteFromPlaylistProp={deleteFromPlaylist}
+          handleSaveToSpotifyProp={handleSaveToSpotify}
+          />
+
+        <SearchResults 
+          generatedAlbumsProp={albums} 
+          generatedTracksProp={tracks} 
+          tracksOnPlaylistProp={handleAddToPlaylist}
+          />
+      </ThemeProvider>
     </div>
   );
 }
@@ -139,8 +177,8 @@ export default App;
 function SearchBar(props) {
   return (
     <Container>
-      <InputGroup className='m-2' size='large'>
-        <FormControl
+      <InputGroup className='m-2' size='sm'>
+        <FormControl 
           placeholder='Search for title'
           type='input'
           onKeyPress={event => {
@@ -158,12 +196,11 @@ function SearchBar(props) {
 function SearchResults (props) {
   return (
     <>
-      <Form.Text>Items related to your search:</Form.Text>
-      {props.searchInputProp !== null && 
+      <Form.Text style={{fontSize: '16px', fontWeight: 'bold'}}>Items related to your search:</Form.Text>
       <Tracklist 
         tracksProp={props.generatedTracksProp}
         addToPlaylistProp={props.tracksOnPlaylistProp}  
-      />}
+      />
     </>
   )
 }
@@ -171,36 +208,53 @@ function SearchResults (props) {
 function Playlist (props) {
   return (
     <Container>
-      <Row className='m-2 row'>
+      <Stack direction='horizontal' gap={2} className='mx-2 my-4'>
         {props.playlistProp.length > 0 && 
-        <FormGroup as={Row} gap={3} >
-          <Col sm='3'>
-            <Form.Control size="sm" type="text/input" placeholder="Enter Playlist name" className='col row-cols-4' onChange={props.handlePlaylistNameProp}/>
+        <>
+        <Col sm='3'>
+          <InputGroup size='sm'>
+            {props.handlePlaylistNameToggle && 
+            <FormControl 
+              size="sm" 
+              type="input" 
+              placeholder="Enter Playlist Name"  
+              onChange={props.handlePlaylistNameProp}/>}
+              <Button 
+                variant={props.handlePlaylistNameToggle ? 'primary' : 'outline-secondary'}
+                onClick={props.handlePlaylistNameStatusProp}
+              >{props.handlePlaylistNameToggle ? 'Save' : 'Change Playlist Name'}</Button>
+          </InputGroup>
           </Col>
-          <Col sm='6'>
-            <Form.Text className='mt-2' size='large'>Currently there are {props.playlistProp.length} items in: {props.playlistNameProp}</Form.Text>
-          </Col>
-          <Col sm='3'>
-            <Button 
-              variant={props.playlistStatusProp ? 'outline-danger' : 'outline-success'}
-              onClick={props.playlistStatusChangeProp}
-              className='row-cols-4'>{props.playlistStatusProp ? 'Close Playlist' : 'Open Playlist'}</Button>
-          </Col>
-        </FormGroup>
-        }
-      </Row>
-      <Row className='mx-2 row row-cols-4'>
+          <Form.Text 
+            className='mx-auto'
+            style={{fontWeight: 'bold', fontSize: '16px'}} 
+          >Currently there {props.playlistProp.length > 1 ? 'are' : 'is' } {props.playlistProp.length} {props.playlistProp.length > 1 ? 'items' : 'item' } in: {props.playlistNameProp}</Form.Text>
+          <Button 
+            size='sm'
+            className='ms-auto'
+            variant={props.playlistStatusProp ? 'outline-secondary' : 'outline-primary'}
+            onClick={props.playlistStatusChangeProp}
+          >{props.playlistStatusProp ? 'Close Playlist' : 'Show Playlist'}</Button>
+          <Button 
+            onClick={props.handleSaveToSpotifyProp}
+            size='sm'
+            variant='outline-success'
+          >Save to Spotify</Button>
+        </>}
+      </Stack>
+      <Row className='mx-2 row row-cols-3'>
         {props.playlistProp.map(track => {
           if (props.playlistStatusProp){
           return (
             <Card key={track.id} className='mb-2'>
-              <Card.Img src={track.album.images[0].url} className='mt-2'/>
-              <Card.Body>
-                <Card.Title>Track: {track.name}</Card.Title>
-                <Card.Subtitle className='mb-2 text-muted'>Artist: {track.artists[0].name}</Card.Subtitle>
-                <Card.Subtitle className='text-muted'>Album: {track.album.name}</Card.Subtitle>
-              </Card.Body>
-              <Button onClick={() => {props.handleDeleteFromPlaylistProp(track.id)}} variant='outline-danger'className='mb-2'>Delete</Button>
+              <Track 
+                track={track}
+              />
+              <Button 
+                onClick={() => {props.handleDeleteFromPlaylistProp(track.id, track.uri)}} 
+                variant='outline-danger'className='mb-2'
+                size='sm'
+              >Delete</Button>
             </Card>
           )}
         })} 
@@ -212,15 +266,22 @@ function Playlist (props) {
 
 function Tracklist (props) {
   return (
-    <Container>
-      <Row className='mx-2 row row-cols-4'> 
+    <Container >
+      <Row className='mx-2 mt-3 row row-cols-3' > 
         {props.tracksProp.map((track) => {
           // console.log(track)
           return (
-            <Track 
-              track={track}
-              addToPlaylist={props.addToPlaylistProp}
-            />
+            <Card key={track.id}>
+              <Track 
+                track={track}
+              />
+              <Button 
+                size='sm'
+                variant='outline-success' 
+                className='mb-2' 
+                onClick={()=> {props.addToPlaylistProp(track, track.uri)}}
+              >Add to Playlist</Button>
+            </Card>
           )
         })}
       {/* working code for generating albums from api, should be connected with respective props
@@ -242,17 +303,19 @@ function Tracklist (props) {
 function Track (props) {
 
   return (
-    <Card key={props.track.id} className='mb-2'>
-      <Card.Img src={props.track.album.images[0].url} className='mt-2'/>
-      <Card.Body>
-        <Card.Title>{props.track.name}</Card.Title>
-        <Card.Subtitle className='mb-2 text-muted'>Artist: {props.track.artists[0].name}</Card.Subtitle>
-        <Card.Subtitle className='text-muted'>Album: {props.track.album.name}</Card.Subtitle>
-      </Card.Body>
-      <Button 
-        variant='outline-success' 
-        className='mb-2' 
-        onClick={()=> {props.addToPlaylist(props.track)}}>Add to Playlist</Button>
+    <Card key={props.track.id} className='mt-2'>
+      <Row className='row row-cols-2'> 
+        <Col sm='4'> 
+          <Card.Img src={props.track.album.images[0].url} className='m-2'/>
+        </Col>
+        <Col sm='8'> 
+          <Card.Body>
+            <Card.Title>{props.track.name}</Card.Title>
+            <Card.Subtitle className='mb-2 text-muted'>Artist: {props.track.artists[0].name}</Card.Subtitle>
+            <Card.Subtitle className='text-muted'>Album: {props.track.album.name}</Card.Subtitle>
+          </Card.Body>
+        </Col>
+      </Row> 
     </Card>
   )
 }
