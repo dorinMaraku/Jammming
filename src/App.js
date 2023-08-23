@@ -7,6 +7,7 @@ import { getAllByTestId } from '@testing-library/react';
 
 const CLIENT_ID = '624bcc3689ca4e4a9205e0cb5efcf422';
 const CLIENT_SECRET = '6468faf416154649857cf0fc1d7ae07e';
+const USER_ID = '8qmzwe9ip443vyjt3dwweovtf' 
 
 
 function App() {
@@ -29,6 +30,7 @@ function App() {
       },
       body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET
     }
+
     fetch('https://accounts.spotify.com/api/token', authParameters)
     .then(promise => promise.json())
     .then(data => setAccessToken(data.access_token))
@@ -131,10 +133,48 @@ function App() {
   }
 
   function handleSaveToSpotify () {
-    resetPlaylist()
     console.log('saved and reset URIs to:' + playlistURIs +' and tracks to '+ playlistTracks ) 
+    // postToSpotify()
+    resetPlaylist()
   }
 
+  const createPlaylistBody = {
+    name: 'My Playlist',
+    description: 'new playlist',
+    public: false
+  }
+  
+  const createPlaylistParameters = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + accessToken
+    },
+    body: JSON.stringify(createPlaylistBody) 
+  }
+  
+  const createPlaylist = fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, createPlaylistParameters)
+    .then(promise => promise.json())
+    .then(data => console.log(data))
+ 
+  // async function postToSpotify () {
+    // const dataToPost = {
+    //   name: playlistName,
+    //   description: 'New Playlist',
+    //   public: false
+    // }
+
+    // const postPlaylistParameters = {
+    //   method: 'POST',
+    //   headers: {
+    //     'Content-Type': 'application/json',
+    //     'Authorization': 'Bearer ' + accessToken
+    //   },
+    //   body: JSON.stringify(dataToPost) 
+    // }
+
+    // const playlistToPost= await fetch('https://api.spotify.com/v1/users/' + USER_ID + '/playlists', postPlaylistParameters)
+  // }
 
   return (
     <div className="App">
