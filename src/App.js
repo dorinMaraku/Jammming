@@ -1,7 +1,7 @@
 import './App.css';
 import { eventWrapper } from '@testing-library/user-event/dist/utils';
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container, InputGroup, FormControl, Button, Row, Card, Form, Col, Stack, ThemeProvider} from 'react-bootstrap';
+import {Container, InputGroup, FormControl, Button, Row, Card, Form, Col, Stack, ThemeProvider, Badge} from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { getAllByTestId } from '@testing-library/react';
 
@@ -17,7 +17,7 @@ function App() {
   const [tracks, setTracks] = useState([])
   const [playlistTracks, setPlaylistTracks] = useState([])
   const [playlistStatus, setPlaylistStatus] = useState(false)
-  const [playlistNameStatus, setPlaylistNameStatus] = useState(false)
+  const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
   const [playlistName, setPlaylistName] = useState('')
   const [playlistURIs, setPlaylistURIs] = useState([])
 
@@ -127,6 +127,26 @@ function App() {
       ))
   }
 
+  useEffect(() => {
+    //OAuth
+    var authParameters = {
+      method: 'GET',
+      // headers: {
+      //   'Content-Type': 'application/x-www-form-urlencoded'
+      // },
+      // body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET
+    }
+
+    fetch('https://accounts.spotify.com/authorize?' +  JSON.stringify({
+      response_type: 'code',
+      client_id: CLIENT_ID,
+      scope: 'playlist-modify-public playlist-modify-private',
+      redirect_uri: 'http://localhost:3000/',
+      state: ''
+    }), authParameters)
+    .then(promise => console.log(promise))
+  }, [])
+
   function resetPlaylist () {
     setPlaylistTracks(([]))
     setPlaylistURIs(([]))
@@ -138,24 +158,24 @@ function App() {
     resetPlaylist()
   }
 
-  const createPlaylistBody = {
-    name: 'My Playlist',
-    description: 'new playlist',
-    public: false
-  }
+  // const createPlaylistBody = {
+  //   name: 'My Playlist',
+  //   description: 'new playlist',
+  //   public: false
+  // }
   
-  const createPlaylistParameters = {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ' + accessToken
-    },
-    body: JSON.stringify(createPlaylistBody) 
-  }
+  // const createPlaylistParameters = {
+  //   method: 'POST',
+  //   headers: {
+  //     'Content-Type': 'application/json',
+  //     'Authorization': 'Bearer ' + accessToken
+  //   },
+  //   body: JSON.stringify(createPlaylistBody) 
+  // }
   
-  const createPlaylist = fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, createPlaylistParameters)
-    .then(promise => promise.json())
-    .then(data => console.log(data))
+  // const createPlaylist = fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, createPlaylistParameters)
+  //   .then(promise => promise.json())
+  //   .then(data => console.log(data))
  
   // async function postToSpotify () {
     // const dataToPost = {
@@ -182,8 +202,8 @@ function App() {
         breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
         minBreakpoint="xxs"> 
 
-        <h1 style={{paddingBlock:'20px'}}>Jammming</h1>
-
+        <h1 style={{paddingBlock:'20px', color: 'green'}}>Jammming</h1>
+        <p style={{marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized Spotify Playlist</p>
         <SearchBar 
           handleEventChangeProp={onChangeEvent} 
           searchInputProp={searchInput}
@@ -217,7 +237,7 @@ export default App;
 function SearchBar(props) {
   return (
     <Container>
-      <InputGroup className='m-2' size='sm'>
+      <InputGroup className='mx-auto' size='sm' style={{width: '60%'}}>
         <FormControl 
           placeholder='Search for title'
           type='input'
@@ -236,7 +256,7 @@ function SearchBar(props) {
 function SearchResults (props) {
   return (
     <>
-      <Form.Text style={{fontSize: '16px', fontWeight: 'bold'}}>Items related to your search:</Form.Text>
+      <Form.Text className='mb-2' style={{fontSize: '16px', fontWeight: '500'}}>Items related to your search:</Form.Text>
       <Tracklist 
         tracksProp={props.generatedTracksProp}
         addToPlaylistProp={props.tracksOnPlaylistProp}  
@@ -258,28 +278,39 @@ function Playlist (props) {
               size="sm" 
               type="input" 
               placeholder="Enter Playlist Name"  
-              onChange={props.handlePlaylistNameProp}/>}
+              onChange={props.handlePlaylistNameProp}
+              onKeyPress={event => {
+                if(event.key === 'Enter') {
+                props.handlePlaylistNameStatusProp()
+              }}}/>}
               <Button 
                 variant={props.handlePlaylistNameToggle ? 'primary' : 'outline-secondary'}
                 onClick={props.handlePlaylistNameStatusProp}
+                onKeyPress={event => {
+                  if(event.key === 'Enter') {
+                  props.handlePlaylistNameStatusProp()
+                }}}
               >{props.handlePlaylistNameToggle ? 'Save' : 'Change Playlist Name'}</Button>
           </InputGroup>
           </Col>
-          <Form.Text 
-            className='mx-auto'
-            style={{fontWeight: 'bold', fontSize: '16px'}} 
-          >Currently there {props.playlistProp.length > 1 ? 'are' : 'is' } {props.playlistProp.length} {props.playlistProp.length > 1 ? 'items' : 'item' } in: {props.playlistNameProp}</Form.Text>
-          <Button 
-            size='sm'
-            className='ms-auto'
-            variant={props.playlistStatusProp ? 'outline-secondary' : 'outline-primary'}
-            onClick={props.playlistStatusChangeProp}
-          >{props.playlistStatusProp ? 'Close Playlist' : 'Show Playlist'}</Button>
-          <Button 
-            onClick={props.handleSaveToSpotifyProp}
-            size='sm'
-            variant='outline-success'
-          >Save to Spotify</Button>
+          {!props.handlePlaylistNameToggle && 
+          <> 
+            <Form.Text 
+              className='mx-auto'
+              style={{fontWeight: '500', fontSize: '16px'}} 
+            >Currently there {props.playlistProp.length > 1 ? 'are' : 'is' } {props.playlistProp.length} {props.playlistProp.length > 1 ? 'items' : 'item' } in: <Badge className='mb-1' bg='success'>{props.playlistNameProp}</Badge></Form.Text>
+            <Button 
+              size='sm'
+              className='ms-auto'
+              variant={props.playlistStatusProp ? 'outline-secondary' : 'outline-primary'}
+              onClick={props.playlistStatusChangeProp}
+            >{props.playlistStatusProp ? 'Close Playlist' : 'Show Playlist'}</Button>
+            <Button 
+              onClick={props.handleSaveToSpotifyProp}
+              size='sm'
+              variant='outline-success'
+            >Save to Spotify</Button> 
+          </>}
         </>}
       </Stack>
       <Row className='mx-2 row row-cols-3'>
@@ -307,7 +338,7 @@ function Playlist (props) {
 function Tracklist (props) {
   return (
     <Container >
-      <Row className='mx-2 mt-3 row row-cols-3' > 
+      <Row className='mx-2 row row-cols-3' > 
         {props.tracksProp.map((track) => {
           // console.log(track)
           return (
@@ -343,16 +374,16 @@ function Tracklist (props) {
 function Track (props) {
 
   return (
-    <Card key={props.track.id} className='mt-2'>
-      <Row className='row row-cols-2'> 
-        <Col sm='4'> 
+    <Card key={props.track.id} className='mt-2' style={{display: 'flex', overflow: 'hidden'}}>
+      <Row className='row row-cols-2' style={{display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', height: '20vh'}}> 
+        <Col sm='4' style={{width: '34%'}}> 
           <Card.Img src={props.track.album.images[0].url} className='m-2'/>
         </Col>
-        <Col sm='8'> 
-          <Card.Body>
-            <Card.Title>{props.track.name}</Card.Title>
-            <Card.Subtitle className='mb-2 text-muted'>Artist: {props.track.artists[0].name}</Card.Subtitle>
-            <Card.Subtitle className='text-muted'>Album: {props.track.album.name}</Card.Subtitle>
+        <Col className='mb-2' sm='8' style={{width: '66%', flexShrink: '3'}}> 
+          <Card.Body className='mb-2'>
+            <Card.Title style={{fontWeight: '400', fontSize: '18px'}}>{props.track.name}</Card.Title>
+            <Card.Subtitle className='mb-2 text-muted' style={{fontWeight: '400',fontSize: '16px'}}>Artist: {props.track.artists[0].name}</Card.Subtitle>
+            <Card.Subtitle className='text-muted' style={{fontWeight: '400', fontSize: '16px'}}>Album: {props.track.album.name}</Card.Subtitle>
           </Card.Body>
         </Col>
       </Row> 
