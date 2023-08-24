@@ -4,11 +4,15 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container, InputGroup, FormControl, Button, Row, Card, Form, Col, Stack, ThemeProvider, Badge} from 'react-bootstrap';
 import { useEffect, useState } from 'react';
 import { getAllByTestId } from '@testing-library/react';
+import Login from './Login'
+import Dashboard from './Dashbord';
+
 
 const CLIENT_ID = '624bcc3689ca4e4a9205e0cb5efcf422';
-const CLIENT_SECRET = '6468faf416154649857cf0fc1d7ae07e';
+const CLIENT_SECRET = '28b59a7ace7844d7bb374f44dacb3f6e';
 const USER_ID = '8qmzwe9ip443vyjt3dwweovtf' 
 
+const code = new URLSearchParams(window.location.search).get('code');
 
 function App() {
   const [searchInput, setSearchInput] = useState('')
@@ -127,26 +131,6 @@ function App() {
       ))
   }
 
-  useEffect(() => {
-    //OAuth
-    var authParameters = {
-      method: 'GET',
-      // headers: {
-      //   'Content-Type': 'application/x-www-form-urlencoded'
-      // },
-      // body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET
-    }
-
-    fetch('https://accounts.spotify.com/authorize?' +  JSON.stringify({
-      response_type: 'code',
-      client_id: CLIENT_ID,
-      scope: 'playlist-modify-public playlist-modify-private',
-      redirect_uri: 'http://localhost:3000/',
-      state: ''
-    }), authParameters)
-    .then(promise => console.log(promise))
-  }, [])
-
   function resetPlaylist () {
     setPlaylistTracks(([]))
     setPlaylistURIs(([]))
@@ -201,8 +185,8 @@ function App() {
       <ThemeProvider 
         breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
         minBreakpoint="xxs"> 
-
-        <h1 style={{paddingBlock:'20px', color: 'green'}}>Jammming</h1>
+        {code ? <Dashboard code={code}/> : <Login />} 
+        {/* <h1 style={{paddingBlock:'20px', color: 'green'}}>Jammming</h1>
         <p style={{marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized Spotify Playlist</p>
         <SearchBar 
           handleEventChangeProp={onChangeEvent} 
@@ -225,8 +209,8 @@ function App() {
         <SearchResults 
           generatedAlbumsProp={albums} 
           generatedTracksProp={tracks} 
-          tracksOnPlaylistProp={handleAddToPlaylist}
-          />
+          tracksOnPlaylistProp={handleAddToPlaylist} */}
+          {/* /> */}
       </ThemeProvider>
     </div>
   );
