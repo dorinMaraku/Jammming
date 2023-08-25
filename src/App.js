@@ -1,9 +1,7 @@
-import './App.css';
-import { eventWrapper } from '@testing-library/user-event/dist/utils';
+import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container, InputGroup, FormControl, Button, Row, Card, Form, Col, Stack, ThemeProvider, Badge} from 'react-bootstrap';
 import { useEffect, useState } from 'react';
-import { getAllByTestId } from '@testing-library/react';
 import Login from './Login'
 import Dashboard from './Dashbord';
 
@@ -186,8 +184,10 @@ function App() {
         breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
         minBreakpoint="xxs"> 
         {code ? <Dashboard code={code}/> : <Login />} 
-        {/* <h1 style={{paddingBlock:'20px', color: 'green'}}>Jammming</h1>
-        <p style={{marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized Spotify Playlist</p>
+        <header>
+          <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}>Jammming</h1>
+          <p style={{marginInline: 'auto', marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized Spotify Playlist</p>
+        </header>
         <SearchBar 
           handleEventChangeProp={onChangeEvent} 
           searchInputProp={searchInput}
@@ -209,8 +209,8 @@ function App() {
         <SearchResults 
           generatedAlbumsProp={albums} 
           generatedTracksProp={tracks} 
-          tracksOnPlaylistProp={handleAddToPlaylist} */}
-          {/* /> */}
+          tracksOnPlaylistProp={handleAddToPlaylist}
+        />
       </ThemeProvider>
     </div>
   );
