@@ -8,11 +8,12 @@ import Dashboard from './Dashbord';
 import SearchResults from './SearchResults';
 import Playlist from './Playlist';
 import axios from 'axios';
+import useAuth, {accessToken} from './useAuth';
 
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
 const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET;
 const USER_ID = process.env.REACT_APP_USER_ID; 
-console.log(process.env.USER_ID)
+// console.log(process.env.USER_ID)
 
 const code = new URLSearchParams(window.location.search).get('code');
 
@@ -26,6 +27,7 @@ function App() {
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
   const [playlistName, setPlaylistName] = useState('')
   const [playlistURIs, setPlaylistURIs] = useState([])
+  const [playlistID, setPlaylistID] = useState('')
 
   useEffect(() => {
     //API Access Token
@@ -145,30 +147,33 @@ function App() {
 
   function handleSaveToSpotify () {
     console.log('saved and reset URIs to:' + playlistURIs +' and tracks to '+ playlistTracks ) 
-    // postToSpotify()
+    // PostToSpotify()
     resetPlaylist()
   }
- 
-  useEffect(() => {
+
+  const postToSpotify = () => {
     const authParameters = {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + accessToken
       },
-      body: {
+      body: JSON.stringify({
         "name": playlistName,
         "description": "New playlist description",
-        "public": false
-      }
+        "public": true
+      })  
     }
+    console.log(accessToken)
+    return fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, authParameters)
+      .then(res => res.json())
+      .then((data) => console.log(data))
+      .catch((err) => console.log(err))
+  }
 
-    axios
-      .post(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, authParameters)
-      .then(res => console.log(res.data))
-
-}, [])
-
-
+  if (playlistName) postToSpotify()
+    // console.log(playlistID)
+  
   return (
     <div className="App">
         {code ? <Dashboard code={code}/> : <Login />} 
