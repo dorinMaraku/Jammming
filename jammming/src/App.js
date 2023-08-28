@@ -26,7 +26,7 @@ function App() {
   const [playlistTracks, setPlaylistTracks] = useState([])
   const [playlistStatus, setPlaylistStatus] = useState(false)
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
-  const [playlistName, setPlaylistName] = useState('')
+  const [playlistName, setPlaylistName] = useState('New playlist')
   const [playlistURIs, setPlaylistURIs] = useState([])
   const [playlistID, setPlaylistID] = useState('')
 
@@ -57,7 +57,7 @@ function App() {
       
     fetch('https://accounts.spotify.com/api/token', refreshTokenParams)
     .then(promise => promise.json())
-    .then(data => console.log(data))
+    .then(data => console.log(data.refresh_token))
   // }, [])
 
   // useEffect(() => {
