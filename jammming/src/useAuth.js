@@ -22,7 +22,7 @@ export default function useAuth(code) {
             window.location = "/"
         })
     }, [code])
-
+ 
     useEffect(() => {
         if (!refreshToken || !expiresIn) return
         const interval  = setInterval(() => {
@@ -42,6 +42,5 @@ export default function useAuth(code) {
         
         return () => clearInterval(interval)
     }, [refreshToken, expiresIn]);
-
     return accessToken
 }

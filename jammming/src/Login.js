@@ -13,11 +13,3 @@ export default function Login () {
     )
 }
 
-// fetch('https://accounts.spotify.com/authorize?' +  JSON.stringify({
-//       response_type: 'code',
-//       client_id: CLIENT_ID,
-//       scope: 'playlist-modify-public playlist-modify-private user-read-playback-state user-modify-playback-state  user-read-email user-read-private',
-//       redirect_uri: 'http://localhost:3000/callback',
-//     }), authParameters)
-//     .then(promise => promise.json())
-//     .then((data) => console.log(data))

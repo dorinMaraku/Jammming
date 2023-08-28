@@ -1,4 +1,3 @@
-// require('dotenv').config()
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import {Container, InputGroup, FormControl, Button, ThemeProvider} from 'react-bootstrap';
@@ -8,18 +7,20 @@ import Dashboard from './Dashbord';
 import SearchResults from './SearchResults';
 import Playlist from './Playlist';
 import axios from 'axios';
-import useAuth, {accessToken} from './useAuth';
+import useAuth from './useAuth';
+
 
 const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
 const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET;
 const USER_ID = process.env.REACT_APP_USER_ID; 
-// console.log(process.env.USER_ID)
+
 
 const code = new URLSearchParams(window.location.search).get('code');
 
 function App() {
   const [searchInput, setSearchInput] = useState('')
   const [accessToken, setAccessToken] = useState('')
+  const [refreshToken, setRefreshToken] = useState('')
   const [albums, setAlbums] = useState([])
   const [tracks, setTracks] = useState([])
   const [playlistTracks, setPlaylistTracks] = useState([])
@@ -31,20 +32,53 @@ function App() {
 
   useEffect(() => {
     //API Access Token
-    var authParameters = {
+    const authParameters = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded'
       },
-      body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET
+      body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private'
     }
 
     fetch('https://accounts.spotify.com/api/token', authParameters)
     .then(promise => promise.json())
-    .then(data => 
-      setAccessToken(data.access_token))
+    .then(data => setAccessToken(data.access_token))
   }, [])
-  
+ 
+  // useEffect(() => {
+    const refreshTokenParams = {
+      method: 'POST',
+      headers: {
+        'Authorization': `Basic ${CLIENT_ID}:${CLIENT_SECRET}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+      body: `grant_type=authorization_code&code=${code}&redirect_uri=https://localhost:3000`
+    }
+      
+    fetch('https://accounts.spotify.com/api/token', refreshTokenParams)
+    .then(promise => promise.json())
+    .then(data => console.log(data))
+  // }, [])
+
+  // useEffect(() => {
+    // const refreshTokenParams = {
+    //   method: 'POST',
+    //   headers: {
+    //     'Authorization': `Basic ${CLIENT_ID}':'${CLIENT_SECRET}`,
+    //     'Content-Type': 'application/x-www-form-urlencoded',
+    //   },
+    //   body: {
+    //     'grant_type': 'refresh_token',
+    //     'refresh_token': `${refreshToken}`,
+    //     'redirect_uri': 'https://localhost:3000'
+    //   }
+    //   }
+      
+    // fetch('https://accounts.spotify.com/api/token', refreshTokenParams)
+    // .then(response => response.json())
+    // .then(data => console.log(data.refresh_token))
+  // }, [])
+
   // console.log(accessToken)
   
   //Search 
@@ -151,28 +185,28 @@ function App() {
     resetPlaylist()
   }
 
-  const postToSpotify = () => {
-    const authParameters = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + accessToken
-      },
-      body: JSON.stringify({
-        "name": playlistName,
-        "description": "New playlist description",
-        "public": true
-      })  
-    }
-    console.log(accessToken)
-    return fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, authParameters)
-      .then(res => res.json())
-      .then((data) => console.log(data))
-      .catch((err) => console.log(err))
-  }
+  // const postToSpotify = async () => {
+  //   const authParameters = {
+  //     method: 'POST',
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //       'Authorization': 'Bearer ' + accessToken
+  //     },
+  //     body: {
+  //       "name": playlistName,
+  //       "description": "New playlist description",
+  //       "public": true
+  //     }
+  //   }
+  //   console.log(accessToken) 
+  //   await fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, authParameters)
+  //     .then(res => res.json())
+  //     .then((data) => console.log(data))
+  //     .catch((err) => console.log(err))
+  // }
+  // console.log(playlistID)
 
-  if (playlistName) postToSpotify()
-    // console.log(playlistID)
+  // if (playlistNameStatus) postToSpotify()
   
   return (
     <div className="App">

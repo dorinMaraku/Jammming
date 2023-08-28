@@ -13,6 +13,7 @@ export default function Dashboard({code}) {
 
     return (
         <div>
+          <div>{code.accessToken}</div>
             {/* <ThemeProvider 
         breakpoints={['xxxl', 'xxl', 'xl', 'lg', 'md', 'sm', 'xs', 'xxs']}
         minBreakpoint="xxs"> 
