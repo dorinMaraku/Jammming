@@ -1,16 +1,15 @@
 import React from 'react';
-import {Form} from 'react-bootstrap';
 import Tracklist from './Tracklist';
 
 
 export default function SearchResults (props) {
     return (
-      <>
-        <Form.Text className='mb-2' style={{fontSize: '16px', fontWeight: '500'}}>Items related to your search:</Form.Text>
+      <div className='SearchResults'>
+        <h2 className='mb-2' style={{fontSize: '16px', fontWeight: '500'}}>Tracks related to your search:</h2>
         <Tracklist 
-          tracksProp={props.generatedTracksProp}
+          returnedTracksProp={props.returnedTracksProp}
           addToPlaylistProp={props.tracksOnPlaylistProp}  
         />
-      </>
+      </div>
     )
   }

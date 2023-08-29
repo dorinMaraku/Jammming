@@ -5,20 +5,22 @@ import Track from './Track'
 export default function Tracklist (props) {
   
   return (
-    props.tracksProp.map((track) => {
-    // console.log(track)
-      return (
-        <div key={track.id} className='d-flex align-items-center justify-contents-space-between'>
-          <Track 
-            track={track}
-            />
-          <button 
-            className='btn btn-outline-success btn-sm m-2' 
-            onClick={()=> {props.addToPlaylistProp(track, track.uri)}}
-            >Add to Playlist</button>
-        </div>
-        )
-      })
+    <div className='d-flex align-items-center justify-contents-space-between'>
+      {props.returnedTracksProp.map(track => {
+        console.log(track)
+        return (
+          <>
+            <Track 
+              track={track}
+              key={track.id}
+              />
+            <button 
+              className='btn btn-outline-success btn-sm m-2' 
+              onClick={()=> {props.addToPlaylistProp(props.track, props.track.uri)}}
+              >Add to Playlist</button>
+          </>
+        )})} 
+    </div>
     )
   }
         {/* working code for generating albums from api, should be connected with respective props

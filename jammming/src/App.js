@@ -1,28 +1,16 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
-import {Container, InputGroup, FormControl, Button, ThemeProvider} from 'react-bootstrap';
-import { useEffect, useState } from 'react';
-import Login from './Login'
-import Dashboard from './Dashbord';
+import { useCallback, useEffect, useState } from 'react';
+import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import Playlist from './Playlist';
-import axios from 'axios';
-import useAuth from './useAuth';
 
 
-const CLIENT_ID = process.env.REACT_APP_CLIENT_ID;
-const CLIENT_SECRET = process.env.REACT_APP_CLIENT_SECRET;
-const USER_ID = process.env.REACT_APP_USER_ID; 
+// const access_token = new URLSearchParams(window.location.search).get('access_token');
 
-
-const code = new URLSearchParams(window.location.search).get('code');
-
-function App() {
+export default function App() {
   const [searchInput, setSearchInput] = useState('')
-  const [accessToken, setAccessToken] = useState('')
-  const [refreshToken, setRefreshToken] = useState('')
-  const [albums, setAlbums] = useState([])
-  const [tracks, setTracks] = useState([])
+  const [returnedTracks, setReturnedTracks] = useState([])
   const [playlistTracks, setPlaylistTracks] = useState([])
   const [playlistStatus, setPlaylistStatus] = useState(false)
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
@@ -30,109 +18,116 @@ function App() {
   const [playlistURIs, setPlaylistURIs] = useState([])
   const [playlistID, setPlaylistID] = useState('')
 
-  useEffect(() => {
-    //API Access Token
-    const authParameters = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      },
-      body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET + '&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private'
+
+  //Access Token
+  const clientId = '624bcc3689ca4e4a9205e0cb5efcf422'; // Insert client ID here.
+  const redirectUri = 'http://localhost:3000'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
+  let accessToken;
+  
+  const getAccessToken = () => {
+    if (accessToken) {
+      return accessToken
     }
 
-    fetch('https://accounts.spotify.com/api/token', authParameters)
-    .then(promise => promise.json())
-    .then(data => setAccessToken(data.access_token))
-  }, [])
- 
-  // useEffect(() => {
-    const refreshTokenParams = {
-      method: 'POST',
-      headers: {
-        'Authorization': `Basic ${CLIENT_ID}:${CLIENT_SECRET}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: `grant_type=authorization_code&code=${code}&redirect_uri=https://localhost:3000`
+    const accessTokenMatch = window.location.href.match(/access_token=([^&]*)/); // matches the access_token from the URL and assigns it to a variable
+    const expiresInMatch = window.location.href.match(/expires_in=([^&]*)/); // matches the expires_in from the URL and assing it to a variable 
+  
+    if(accessTokenMatch && expiresInMatch) {
+      accessToken = accessTokenMatch[1]
+      const expiresIn = Number(expiresInMatch[1])
+      window.setTimeout(() => accessToken = '', expiresIn * 1000);
+      window.history.pushState('Access Token', null, '/'); // This clears the parameters, allowing us to grab a new access token when it expires.
+      return accessToken;
     }
-      
-    fetch('https://accounts.spotify.com/api/token', refreshTokenParams)
-    .then(promise => promise.json())
-    .then(data => console.log(data.refresh_token))
-  // }, [])
+    else {
+      const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private&redirect_uri=${redirectUri}`;
+      window.location = accessUrl
+    }
+  } 
 
-  // useEffect(() => {
-    // const refreshTokenParams = {
-    //   method: 'POST',
-    //   headers: {
-    //     'Authorization': `Basic ${CLIENT_ID}':'${CLIENT_SECRET}`,
-    //     'Content-Type': 'application/x-www-form-urlencoded',
-    //   },
-    //   body: {
-    //     'grant_type': 'refresh_token',
-    //     'refresh_token': `${refreshToken}`,
-    //     'redirect_uri': 'https://localhost:3000'
-    //   }
-    //   }
-      
-    // fetch('https://accounts.spotify.com/api/token', refreshTokenParams)
-    // .then(response => response.json())
-    // .then(data => console.log(data.refresh_token))
-  // }, [])
-
-  // console.log(accessToken)
   
   //Search 
+  //Set search query string
+  const onInputChange = useCallback((event) => {
+    setSearchInput(event.target.value)
+  }, [])
 
-  async function search () {
+  //serach the input value from query string
+  const search = (searchInput) => {
     // console.log('search for ' + searchInput) 
-
-    //Get request search to get the Artist ID
+    const accessToken = getAccessToken()
+    // console.log('access token: ' + accessToken)
+    //Get request search to get tracks/artists
     const searchParameters = {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ' + accessToken
       }
-    }
-    const artistID = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=artist', searchParameters)
+    } 
+    return fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US', searchParameters)
     .then(response => response.json())
-    .then(data => {
-      return data.artists.items[0].id
+    .then(data => {//console.log(data.tracks)
+      if (!data.tracks) return [];
+      return data.tracks.items.map(track => 
+        setReturnedTracks(prevReturnedTracks => ({
+        id: track.id,
+        name: track.name,
+        album: track.album.name,
+        artist: track.artists[0].name,
+        image: track.album.images.reduce((smallest, image) => (image.height < smallest.height)? image : smallest).url,
+        uri: track.uri
+      })))
     })
-    
-    // console.log('Aritist ID is ' + artistID)
-    //Get request with Artist ID grab all albums fro the artist
-
-    const returnedAlbums = await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums' + '?include_groups=album&market=US&limit=50', searchParameters)
-    .then(promise => promise.json())
-    .then(data => {
-      setAlbums(data.items)
-    })
-    // console.log(albums)
-    //Display those albums to the user
-
-    const returnedTracks = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track', searchParameters)
-    .then(response => response.json())
-    .then(data => {
-      setTracks(data.tracks.items)
-    })
-    // console.log(tracks.map(track => track.id))
   }
 
-  function onChangeEvent (event) {
-      setSearchInput(event.target.value)
-  }
-
+  //handle the search
   function handleSearch() {
     if (searchInput === '') {
-      alert('Please provide a title...')
+      alert('Please provide a title or artist to query...')
     }
     else {
-      search()
+      search(searchInput)
   }}
+  console.log(returnedTracks)
+  console.log(playlistTracks)
+  
+  const savePlaylist = (name, trackUris) => {
+    if (!name || !trackUris.length) {
+      return;
+    }
 
+    const accessToken = getAccessToken();
+    const headers = {Authorization: `Bearer ${accessToken}`}
+    let userId;
+
+    //Get request to get the User ID
+    return fetch('https://api.spotify.com/v1/me', {headers: headers})
+      .then(response => response.json())
+      .then(data => {
+        userId = data.id
+        console.log(userId)
+      return fetch(`https://api.spotify.com/v1/users/users/${userId}/playlists`, {
+        headers: headers,
+        method: 'POST',
+        body: JSON.stringify({name: name})
+      }).then(response => response.json())
+        .then(data => {
+          const playlistID = data.id;
+          console.log(playlistID);
+        return fetch(`https://api.spotify.com/v1/users/${userId}/playlists/${playlistID}/tracks`, {
+          headers: headers,
+          method: 'POST',
+          body: JSON.stringify({uris: trackUris})
+        }).then(response => response.json())
+          .then(data => {
+            console.log(data)
+          })
+      })
+    })
+  }
   function handleAddToPlaylist (newTrack, newURI) {
-    // console.log('this is the needed value' + newTrackID)
+    // console.log('this is the newTrackID' + newTrackID)
     if (playlistTracks.includes(newTrack)) {
       return playlistTracks
     }
@@ -181,43 +176,20 @@ function App() {
 
   function handleSaveToSpotify () {
     console.log('saved and reset URIs to:' + playlistURIs +' and tracks to '+ playlistTracks ) 
-    // PostToSpotify()
+    savePlaylist()
     resetPlaylist()
   }
-
-  // const postToSpotify = async () => {
-  //   const authParameters = {
-  //     method: 'POST',
-  //     headers: {
-  //       'Content-Type': 'application/json',
-  //       'Authorization': 'Bearer ' + accessToken
-  //     },
-  //     body: {
-  //       "name": playlistName,
-  //       "description": "New playlist description",
-  //       "public": true
-  //     }
-  //   }
-  //   console.log(accessToken) 
-  //   await fetch(`https://api.spotify.com/v1/users/${USER_ID}/playlists`, authParameters)
-  //     .then(res => res.json())
-  //     .then((data) => console.log(data))
-  //     .catch((err) => console.log(err))
-  // }
-  // console.log(playlistID)
-
-  // if (playlistNameStatus) postToSpotify()
   
   return (
     <div className="App">
-        {code ? <Dashboard code={code}/> : <Login />} 
+
+        {/* {acccessToken ? <Dashboard code={code}/> : <Login />}  */}
         <header>
-          <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}>Jammming</h1>
+          <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}>Ja<span className='highlight'>mmm</span>ing</h1>
           <p style={{marginInline: 'auto', marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized Spotify Playlist</p>
         </header>
         <SearchBar 
-          handleEventChangeProp={onChangeEvent} 
-          searchInputProp={searchInput}
+          handleInputChangeProp={onInputChange} 
           handleSearchProp={handleSearch}
           />
 
@@ -234,33 +206,11 @@ function App() {
           />
 
         <SearchResults 
-          generatedAlbumsProp={albums} 
-          generatedTracksProp={tracks} 
+          returnedTracksProp={returnedTracks} 
           tracksOnPlaylistProp={handleAddToPlaylist}
         />
     </div>
   );
-}
-
-export default App;
-
-function SearchBar(props) {
-  return (
-    <Container>
-      <InputGroup className='mx-auto' size='sm' style={{width: '60%'}}>
-        <FormControl 
-          placeholder='Search for title'
-          type='input'
-          onKeyPress={event => {
-            if(event.key === 'Enter') {
-            props.handleSearchProp()
-          }}}
-          onChange={props.handleEventChangeProp}
-        />
-        <Button onClick={props.handleSearchProp} className='outline-primary'>Search</Button>
-      </InputGroup>
-    </Container>
-  )
 }
 
 
@@ -333,5 +283,3 @@ function SearchBar(props) {
 //     </Container>
 //   )
 // }
-
-
