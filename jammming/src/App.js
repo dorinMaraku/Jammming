@@ -9,6 +9,7 @@ import Playlist from './Playlist';
 // const access_token = new URLSearchParams(window.location.search).get('access_token');
 
 export default function App() {
+
   const [searchInput, setSearchInput] = useState('')
   const [returnedTracks, setReturnedTracks] = useState([])
   const [playlistTracks, setPlaylistTracks] = useState([])
@@ -16,7 +17,7 @@ export default function App() {
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
   const [playlistName, setPlaylistName] = useState('New playlist')
   const [playlistURIs, setPlaylistURIs] = useState([])
-  const [playlistID, setPlaylistID] = useState('')
+  //const [playlistID, setPlaylistID] = useState('')
 
 
   //Access Token
@@ -47,13 +48,8 @@ export default function App() {
 
   
   //Search 
-  //Set search query string
-  const onInputChange = useCallback((event) => {
-    setSearchInput(event.target.value)
-  }, [])
-
   //serach the input value from query string
-  const search = (searchInput) => {
+  const search = async () => {
     // console.log('search for ' + searchInput) 
     const accessToken = getAccessToken()
     // console.log('access token: ' + accessToken)
@@ -65,42 +61,50 @@ export default function App() {
         'Authorization': 'Bearer ' + accessToken
       }
     } 
-    return fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US', searchParameters)
-    .then(response => response.json())
-    .then(data => {//console.log(data.tracks)
-      if (!data.tracks) return [];
-      return data.tracks.items.map(track => 
-        setReturnedTracks(prevReturnedTracks => ({
-        id: track.id,
-        name: track.name,
-        album: track.album.name,
-        artist: track.artists[0].name,
-        image: track.album.images.reduce((smallest, image) => (image.height < smallest.height)? image : smallest).url,
-        uri: track.uri
-      })))
+  const trackQuery = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US&limit=50', searchParameters)
+    .then (response => response.json())
+    .then(data => {
+    // if (!data.tracks) return [];
+    // return data.tracks.items.map((track) => ({
+    //   id: track.id,
+    //   name: track.name,
+    //   album: track.album.name,
+    //   artist: track.artists[0].name,
+    //   image: track.album.images.reduce((smallest, image) => (image.height < smallest.height) ? image : smallest).url,
+    //   uri: track.uri
+    // }));
+      data.tracks && setReturnedTracks(data.tracks.items)
     })
+  }
+  //Set search query string
+  const onInputChange = (event) => {
+    setSearchInput(event.target.value)
   }
 
   //handle the search
   function handleSearch() {
-    if (searchInput === '') {
+    if (!searchInput) {
       alert('Please provide a title or artist to query...')
     }
     else {
-      search(searchInput)
+      search()
   }}
-  console.log(returnedTracks)
-  console.log(playlistTracks)
+  // const handleSearch = useCallback((searchInput) => {
+  //   if (searchInput === '') {
+  //     alert('Please provide a title or artist to query...')
+  //   }
+  //   else {
+  //     search(searchInput).then(setReturnedTracks)
+  //   }
+  // }, [searchInput])
+
+  // returnedTracks.map(track => console.log(track))
   
   const savePlaylist = (name, trackUris) => {
-    if (!name || !trackUris.length) {
-      return;
-    }
-
+    if (!name || !trackUris.length) return;
     const accessToken = getAccessToken();
     const headers = {Authorization: `Bearer ${accessToken}`}
     let userId;
-
     //Get request to get the User ID
     return fetch('https://api.spotify.com/v1/me', {headers: headers})
       .then(response => response.json())
@@ -186,7 +190,7 @@ export default function App() {
         {/* {acccessToken ? <Dashboard code={code}/> : <Login />}  */}
         <header>
           <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}>Ja<span className='highlight'>mmm</span>ing</h1>
-          <p style={{marginInline: 'auto', marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized Spotify Playlist</p>
+          <p style={{marginInline: 'auto', marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized <span style={{color: 'green', fontWeight: 'bold'}}>Spotify</span> Playlist</p>
         </header>
         <SearchBar 
           handleInputChangeProp={onInputChange} 
@@ -204,9 +208,9 @@ export default function App() {
           handleDeleteFromPlaylistProp={deleteFromPlaylist}
           handleSaveToSpotifyProp={handleSaveToSpotify}
           />
-
+        {[returnedTracks]}
         <SearchResults 
-          returnedTracksProp={returnedTracks} 
+          generatedTracksProp={returnedTracks} 
           tracksOnPlaylistProp={handleAddToPlaylist}
         />
     </div>
