@@ -19,7 +19,6 @@ export default function Track (props) {
           </div>
         </div>
         {!props.playlistStatusProp ? 
-          // props.playlistStatusChangeProp
           <button 
             className='btn btn-outline-success btn-sm m-2 align-self-flex-end' 
             onClick={()=> {props.addToPlaylistProp(props.track, props.trackURI)}}

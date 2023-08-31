@@ -4,7 +4,7 @@ import Track from './Track'
 
 export default function Tracklist (props) {
 
-  const mappedTracks = props.resultingTracks.map((track) => {
+  const mappedTracks = props.resultingTracks?.map((track) => {
     return (
       <div key={track.id}>
         <Track 
@@ -17,7 +17,6 @@ export default function Tracklist (props) {
           trackURI={track.uri}
           addToPlaylistProp={props.addToPlaylistProp}
           playlistStatusProp={props.playlistStatusProp}
-          playlistStatusChangeProp={props.playlistStatusChangeProp}
           handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
         />
       </div>

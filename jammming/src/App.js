@@ -132,21 +132,23 @@ export default function App() {
       return playlistTracks
     }
     else {
+      setPlaylistStatus(prevStatus => !prevStatus)
+
       setPlaylistTracks(prevPlaylistTracks => ([
         ...prevPlaylistTracks,
         newTrack
       ]))
+
       setPlaylistURIs(prevPlaylistURIs => ([
         ...prevPlaylistURIs,
         newURI]))
-      setPlaylistStatus(prevStatus => !prevStatus)
     }
   }
   // console.log(playlistTracks)
 
-  function handlePlaylistStatusChange () {
-    setPlaylistStatus(prevStatus => !prevStatus)
-  }
+  // function handlePlaylistStatusChange () {
+  //   setPlaylistStatus(prevStatus => !prevStatus)
+  // }
   // console.log(playlistStatus)
 
   function handlePlaylistName (event) {
@@ -160,6 +162,8 @@ export default function App() {
 
   function deleteFromPlaylist(ownTrackID, ownTrackURI) {
     // console.log('item to be deleted' + ownTrack)
+    setPlaylistStatus(prevStatus => !prevStatus)
+
     setPlaylistTracks(prevPlaylistTracks => 
       prevPlaylistTracks.filter(track => 
         track.id !== ownTrackID
@@ -168,6 +172,7 @@ export default function App() {
       prevPlaylistURIs.filter(itemURI => 
         itemURI !== ownTrackURI
       ))
+
   }
 
   function resetPlaylist () {
@@ -197,7 +202,7 @@ export default function App() {
         <Playlist 
           playlistProp={playlistTracks}
           playlistStatusProp={playlistStatus}
-          playlistStatusChangeProp={handlePlaylistStatusChange}
+          // playlistStatusChangeProp={handlePlaylistStatusChange}
           playlistNameProp={playlistName}
           handlePlaylistNameProp={handlePlaylistName}
           handlePlaylistNameToggle={playlistNameStatus}

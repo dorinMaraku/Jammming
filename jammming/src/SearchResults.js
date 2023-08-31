@@ -11,7 +11,6 @@ export default function SearchResults (props) {
           resultingTracks={props.generatedTracksProp}
           addToPlaylistProp={props.tracksOnPlaylistProp}  
           playlistStatusProp={props.playlistStatusProp}
-          playlistStatusChangeProp={props.playlistStatusChangeProp}
           handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
         />
       </div>

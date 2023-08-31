@@ -50,20 +50,16 @@ export default function Playlist (props) {
             </>}
           </>}
         </Stack>
-        <div className='mx-2'>
+          <div className='mx-auto d-flex justify-content-space-between align-items-center'>
           {props.playlistStatusProp &&
-              <div className='mx-auto d-flex justify-content-space-between align-items-center'>
                 <Tracklist 
                   resultingTracks={props.generatedTracksProp}
                   addToPlaylistProp={props.tracksOnPlaylistProp}  
                   playlistStatusProp={props.playlistStatusProp}
-                  playlistStatusChangeProp={props.playlistStatusChangeProp}
                   handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
                 />
+              }
               </div>
-            }
-        </div>
-        <br />
       </Container>
     )
   }
