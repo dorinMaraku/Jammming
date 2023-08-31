@@ -139,6 +139,7 @@ export default function App() {
       setPlaylistURIs(prevPlaylistURIs => ([
         ...prevPlaylistURIs,
         newURI]))
+      setPlaylistStatus(prevStatus => !prevStatus)
     }
   }
   // console.log(playlistTracks)
