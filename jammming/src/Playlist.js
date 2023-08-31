@@ -1,6 +1,6 @@
 import React from "react";
-import { Container, Badge, Form, Stack, InputGroup, FormControl, Button, Col, Row, Card } from 'react-bootstrap'
-import Track from "./Track";
+import { Container, Badge, Form, Stack, InputGroup, FormControl, Button, Col} from 'react-bootstrap'
+import Tracklist from "./Tracklist";
 
 export default function Playlist (props) {
     return (
@@ -16,7 +16,7 @@ export default function Playlist (props) {
                 type="input" 
                 placeholder="Enter Playlist Name"  
                 onChange={props.handlePlaylistNameProp}
-                onKeyPress={event => {
+                onKeyDown={event => {
                   if(event.key === 'Enter') {
                   props.handlePlaylistNameStatusProp()
                 }}}/>}
@@ -51,21 +51,17 @@ export default function Playlist (props) {
           </>}
         </Stack>
         <div className='mx-2'>
-          {props.playlistProp.map(track => {
-            if (props.playlistStatusProp){
-            return (
-              <div key={track.id} className='mx-auto d-flex justify-content-space-between align-items-center'>
-                <Track 
-                  track={track}
+          {props.playlistStatusProp &&
+              <div className='mx-auto d-flex justify-content-space-between align-items-center'>
+                <Tracklist 
+                  resultingTracks={props.generatedTracksProp}
+                  addToPlaylistProp={props.tracksOnPlaylistProp}  
+                  playlistStatusProp={props.playlistStatusProp}
+                  playlistStatusChangeProp={props.playlistStatusChangeProp}
+                  handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
                 />
-                <Button 
-                  onClick={() => {props.handleDeleteFromPlaylistProp(track.id, track.uri)}} 
-                  variant='outline-danger'className='mb-2'
-                  size='sm'
-                >Delete</Button>
               </div>
-            )}
-          })} 
+            }
         </div>
         <br />
       </Container>

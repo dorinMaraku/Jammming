@@ -17,14 +17,13 @@ export default function App() {
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
   const [playlistName, setPlaylistName] = useState('New playlist')
   const [playlistURIs, setPlaylistURIs] = useState([])
-  //const [playlistID, setPlaylistID] = useState('')
 
 
   //Access Token
   const clientId = '624bcc3689ca4e4a9205e0cb5efcf422'; // Insert client ID here.
   const redirectUri = 'http://localhost:3000'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
   let accessToken;
-  
+
   const getAccessToken = () => {
     if (accessToken) {
       return accessToken
@@ -48,8 +47,13 @@ export default function App() {
 
   
   //Search 
+  //Set search query string
+  const onInputChange = (event) => {
+    setSearchInput(event.target.value)
+  }
+  // console.log(searchInput)
   //serach the input value from query string
-  const search = async () => {
+  const search = () => {
     // console.log('search for ' + searchInput) 
     const accessToken = getAccessToken()
     // console.log('access token: ' + accessToken)
@@ -61,24 +65,23 @@ export default function App() {
         'Authorization': 'Bearer ' + accessToken
       }
     } 
-  const trackQuery = await fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US&limit=50', searchParameters)
-    .then (response => response.json())
+  fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US&limit=5', searchParameters)
+    .then (promise => promise.json())
     .then(data => {
-    // if (!data.tracks) return [];
-    // return data.tracks.items.map((track) => ({
-    //   id: track.id,
-    //   name: track.name,
-    //   album: track.album.name,
-    //   artist: track.artists[0].name,
-    //   image: track.album.images.reduce((smallest, image) => (image.height < smallest.height) ? image : smallest).url,
-    //   uri: track.uri
-    // }));
-      data.tracks && setReturnedTracks(data.tracks.items)
-    })
-  }
-  //Set search query string
-  const onInputChange = (event) => {
-    setSearchInput(event.target.value)
+      if (!data.tracks) {
+        console.log('no tracks')
+        return []
+      };
+      // console.log(data.tracks.items)
+      setReturnedTracks(data.tracks.items.map((track) => ({
+        id: track.id,
+        name: track.name,
+        album: track.album.name,
+        artist: track.artists[0].name,
+        image: track.album.images.reduce((smallest, image) => (image.height < smallest.height) ? image : smallest).url,
+        uri: track.uri
+      })));
+    }).catch((error) => console.log(error))
   }
 
   //handle the search
@@ -89,22 +92,15 @@ export default function App() {
     else {
       search()
   }}
-  // const handleSearch = useCallback((searchInput) => {
-  //   if (searchInput === '') {
-  //     alert('Please provide a title or artist to query...')
-  //   }
-  //   else {
-  //     search(searchInput).then(setReturnedTracks)
-  //   }
-  // }, [searchInput])
-
-  // returnedTracks.map(track => console.log(track))
   
-  const savePlaylist = (name, trackUris) => {
-    if (!name || !trackUris.length) return;
+  const savePlaylist = (playlistName, trackUris) => {
+    
+    if (!playlistName || !playlistURIs.length) return;
+
     const accessToken = getAccessToken();
     const headers = {Authorization: `Bearer ${accessToken}`}
     let userId;
+
     //Get request to get the User ID
     return fetch('https://api.spotify.com/v1/me', {headers: headers})
       .then(response => response.json())
@@ -114,7 +110,7 @@ export default function App() {
       return fetch(`https://api.spotify.com/v1/users/users/${userId}/playlists`, {
         headers: headers,
         method: 'POST',
-        body: JSON.stringify({name: name})
+        body: JSON.stringify({name: playlistName})
       }).then(response => response.json())
         .then(data => {
           const playlistID = data.id;
@@ -208,10 +204,12 @@ export default function App() {
           handleDeleteFromPlaylistProp={deleteFromPlaylist}
           handleSaveToSpotifyProp={handleSaveToSpotify}
           />
-        {[returnedTracks]}
+   
         <SearchResults 
           generatedTracksProp={returnedTracks} 
           tracksOnPlaylistProp={handleAddToPlaylist}
+          playlistStatusProp={playlistStatus}
+          handleDeleteFromPlaylistProp={deleteFromPlaylist}
         />
     </div>
   );

@@ -3,24 +3,30 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Track from './Track'
 
 export default function Tracklist (props) {
-  // console.log(props.resultingTracks)
-  const trackMapping = props.resultingTracks.map((track) => {
-            <>
-              <Track 
-                track={track}
-                key={track.id}
-                >
-                  {console.log(track)}
-              <button 
-                className='btn btn-outline-success btn-sm m-2' 
-                onClick={()=> {props.addToPlaylistProp(track, track.uri)}}
-                >Add to Playlist</button>
-              </Track> 
-            </>
-          }) 
+
+  const mappedTracks = props.resultingTracks.map((track) => {
+    return (
+      <div key={track.id}>
+        <Track 
+          id={track.id} 
+          image={track.image}
+          artist={track.artist}
+          name={track.name}
+          album={track.album}
+          track={track}
+          trackURI={track.uri}
+          addToPlaylistProp={props.addToPlaylistProp}
+          playlistStatusProp={props.playlistStatusProp}
+          playlistStatusChangeProp={props.playlistStatusChangeProp}
+          handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
+        />
+      </div>
+    )
+  })
+
   return (
-    <div className='d-flex align-items-center justify-contents-space-between'>
-      {trackMapping}
+    <div className='Tracklist'>
+      {mappedTracks}   
     </div>
     )
   }  
