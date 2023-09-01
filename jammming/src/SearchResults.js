@@ -9,8 +9,9 @@ export default function SearchResults (props) {
         {props.generatedTracksProp.length > 0 && <h2 className='mb-2' style={{fontSize: '16px', fontWeight: '500', color: 'grey'}}>Tracks related to your search:</h2>}
         <Tracklist 
           resultingTracks={props.generatedTracksProp}
+          isListedProp={props.isListedProp}
+          // isListedToggleProp={props.isListedToggleProp}
           addToPlaylistProp={props.tracksOnPlaylistProp}  
-          playlistStatusProp={props.playlistStatusProp}
           handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
         />
       </div>

@@ -3,8 +3,7 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 
 export default function Track (props) {
-    // const smallestImage = props.track.album.images.reduce((smallest, image) => smallest.height > image.height ? image : smallest).url
-
+    // console.log(props.trackURI)
     return (
       <div className='mt-2 d-flex align-items-center justify-content-space-between Track' style={{width: '100%'}}>
         <div className='m-2 d-flex align-items-center TrackInfo'>
@@ -18,16 +17,20 @@ export default function Track (props) {
             <div className='mb-2 text-muted'>{props.artist} | {props.album}</div>
           </div>
         </div>
-        {!props.playlistStatusProp ? 
+        <div>
+        {!props.isListedProp ? 
           <button 
-            className='btn btn-outline-success btn-sm m-2 align-self-flex-end' 
-            onClick={()=> {props.addToPlaylistProp(props.track, props.trackURI)}}
-            >Add to Playlist</button> : 
+          className='btn btn-outline-success btn-sm m-2 align-self-flex-end' 
+          onClick={()=> {props.addToPlaylistProp(props.track, props.trackURI)}}
+          // onClick={props.isListedToggleProp}
+          
+          >Add to Playlist</button> : 
           <button 
-            onClick={() => {props.handleDeleteFromPlaylistProp(props.track, props.trackURI)}} 
-            variant='btn btn-outline-danger btn-sm m-2 align-self-flex-end'className='mb-2'
-            size='sm'
-          >Delete</button>}
+          className='btn btn-outline-danger btn-sm mb-2 align-self-flex-end'
+          onClick={() => {props.handleDeleteFromPlaylistProp(props.track, props.trackURI)}} 
+          // onClick={props.isListedToggleProp}
+          >Remove</button>}
+          </div>
       </div>
     )
   }

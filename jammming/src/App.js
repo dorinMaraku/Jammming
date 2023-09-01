@@ -12,8 +12,9 @@ export default function App() {
 
   const [searchInput, setSearchInput] = useState('')
   const [returnedTracks, setReturnedTracks] = useState([])
+  const [isListed, setIsListed] = useState(false)
+  const [isActive, setIsActive] = useState(false)
   const [playlistTracks, setPlaylistTracks] = useState([])
-  const [playlistStatus, setPlaylistStatus] = useState(false)
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
   const [playlistName, setPlaylistName] = useState('New playlist')
   const [playlistURIs, setPlaylistURIs] = useState([])
@@ -79,7 +80,8 @@ export default function App() {
         album: track.album.name,
         artist: track.artists[0].name,
         image: track.album.images.reduce((smallest, image) => (image.height < smallest.height) ? image : smallest).url,
-        uri: track.uri
+        uri: track.uri,
+        isListed: isListed,
       })));
     }).catch((error) => console.log(error))
   }
@@ -126,14 +128,13 @@ export default function App() {
       })
     })
   }
+
   function handleAddToPlaylist (newTrack, newURI) {
-    // console.log('this is the newTrackID' + newTrackID)
+    // console.log('this is the newTrackID' + newTrackID
     if (playlistTracks.includes(newTrack)) {
       return playlistTracks
     }
     else {
-      setPlaylistStatus(prevStatus => !prevStatus)
-
       setPlaylistTracks(prevPlaylistTracks => ([
         ...prevPlaylistTracks,
         newTrack
@@ -142,14 +143,20 @@ export default function App() {
       setPlaylistURIs(prevPlaylistURIs => ([
         ...prevPlaylistURIs,
         newURI]))
+      setIsListed(prevIsListed => prevIsListed.filter(((currentTrack) => currentTrack.isListed !== newTrack.id)))
     }
   }
-  // console.log(playlistTracks)
+  console.log(playlistTracks)
 
-  // function handlePlaylistStatusChange () {
-  //   setPlaylistStatus(prevStatus => !prevStatus)
-  // }
-  // console.log(playlistStatus)
+  function handleIsListedToggle () {
+    setIsListed(prevStatus => !prevStatus)
+  }
+  console.log(isListed)
+
+  function handleIsActiveToggle () {
+    setIsActive(prevStatus =>!prevStatus)
+  }
+  // console.log(isActive)
 
   function handlePlaylistName (event) {
     setPlaylistName(event.target.value)
@@ -161,9 +168,7 @@ export default function App() {
   // console.log(playlistNameStatus)
 
   function deleteFromPlaylist(ownTrackID, ownTrackURI) {
-    // console.log('item to be deleted' + ownTrack)
-    setPlaylistStatus(prevStatus => !prevStatus)
-
+    console.log('item to be deleted' + ownTrackURI)
     setPlaylistTracks(prevPlaylistTracks => 
       prevPlaylistTracks.filter(track => 
         track.id !== ownTrackID
@@ -172,7 +177,6 @@ export default function App() {
       prevPlaylistURIs.filter(itemURI => 
         itemURI !== ownTrackURI
       ))
-
   }
 
   function resetPlaylist () {
@@ -191,7 +195,7 @@ export default function App() {
 
         {/* {acccessToken ? <Dashboard code={code}/> : <Login />}  */}
         <header>
-          <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}>Ja<span className='highlight'>mmm</span>ing</h1>
+          <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}>Ja<span className='highlight' style={{color: 'grey', fontWeight: 'bold'}}>mmm</span>ing</h1>
           <p style={{marginInline: 'auto', marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}>Create your customized <span style={{color: 'green', fontWeight: 'bold'}}>Spotify</span> Playlist</p>
         </header>
         <SearchBar 
@@ -200,9 +204,11 @@ export default function App() {
           />
 
         <Playlist 
-          playlistProp={playlistTracks}
-          playlistStatusProp={playlistStatus}
-          // playlistStatusChangeProp={handlePlaylistStatusChange}
+          playlistTracksProp={playlistTracks}
+          isListedProp={isListed}
+          isListedToggleProp={handleIsListedToggle}
+          isActiveProp={isActive}
+          IsActiveToggleProp={handleIsActiveToggle}
           playlistNameProp={playlistName}
           handlePlaylistNameProp={handlePlaylistName}
           handlePlaylistNameToggle={playlistNameStatus}
@@ -213,8 +219,9 @@ export default function App() {
    
         <SearchResults 
           generatedTracksProp={returnedTracks} 
+          isListedProp={isListed}
+          // isListedToggleProp={handleIsListedToggle}
           tracksOnPlaylistProp={handleAddToPlaylist}
-          playlistStatusProp={playlistStatus}
           handleDeleteFromPlaylistProp={deleteFromPlaylist}
         />
     </div>

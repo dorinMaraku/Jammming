@@ -6,7 +6,8 @@ export default function Tracklist (props) {
 
   const mappedTracks = props.resultingTracks?.map((track) => {
     return (
-      <div key={track.id}>
+      <div key={track.id} className='d-flex align-items-center justify-content-space-between'>
+
         <Track 
           id={track.id} 
           image={track.image}
@@ -15,10 +16,12 @@ export default function Tracklist (props) {
           album={track.album}
           track={track}
           trackURI={track.uri}
+          
+          isListedProp ={props.isListedProp}
+          isListedToggleProp={props.isListedToggleProp}
           addToPlaylistProp={props.addToPlaylistProp}
-          playlistStatusProp={props.playlistStatusProp}
           handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
-        />
+          /> 
       </div>
     )
   })
