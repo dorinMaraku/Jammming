@@ -16,12 +16,15 @@ export default function Tracklist (props) {
           album={track.album}
           track={track}
           trackURI={track.uri}
-          
           isListedProp ={props.isListedProp}
-          isListedToggleProp={props.isListedToggleProp}
-          addToPlaylistProp={props.addToPlaylistProp}
-          handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
           /> 
+        <div>
+          <button 
+          className='btn btn-outline-success btn-sm m-2 ' 
+          onClick={()=> {props.addToPlaylistProp(track, track.uri)}}
+          // onClick={props.isListedToggleProp}
+          >Add to Playlist</button>
+          </div>
       </div>
     )
   })

@@ -10,9 +10,9 @@ export default function SearchResults (props) {
         <Tracklist 
           resultingTracks={props.generatedTracksProp}
           isListedProp={props.isListedProp}
-          // isListedToggleProp={props.isListedToggleProp}
-          addToPlaylistProp={props.tracksOnPlaylistProp}  
-          handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
+          isListedToggleProp={props.isListedToggleProp}
+          addToPlaylistProp={props.addToPlaylistProp}  
+          deleteFromPlaylistProp={props.deleteFromPlaylistProp}
         />
       </div>
     )

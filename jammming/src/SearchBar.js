@@ -11,10 +11,11 @@ export default function SearchBar (props) {
     return (
         <div className='input-group' size='sm'> 
             <input
-                className='form-control ' type='text'
+                className='form-control' type='text'
                 placeholder='Search for title or artist...'
                 onKeyDown={handleKeyDown}
                 onChange={props.handleInputChangeProp}
+                // style={{maxWidth: '60%'}}
             />
             <button onClick={props.handleSearchProp} className='btn btn-outline-primary btn-sm'>SEARCH</button>
         </div>

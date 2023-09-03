@@ -1,12 +1,11 @@
 import React from "react";
 import { Container, Badge, Form, Stack, InputGroup, FormControl, Button} from 'react-bootstrap'
-import Tracklist from "./Tracklist";
+import Track from "./Track";
 
 export default function Playlist (props) {
     return (
       <Container>
-        <Stack direction='horizontal' gap={2} className='mx-2 my-4'>
-          {props.playlistTracksProp.length && 
+          {props.playlistTracksProp.length > 0 && 
           <>
             <InputGroup size='sm'>
               {props.handlePlaylistNameToggle && 
@@ -41,7 +40,7 @@ export default function Playlist (props) {
                 className='ms-auto'
                 variant={props.isListedProp ? 'outline-secondary' : 'outline-primary'}
                 onClick={props.isListedToggleProp}
-              >{props.playlistStatusProp ? 'Close Playlist' : 'Show Playlist'}</Button>
+              >{props.isListedProp ? 'Close Playlist' : 'Show Playlist'}</Button>
               <Button 
                 onClick={props.handleSaveToSpotifyProp}
                 size='sm'
@@ -50,18 +49,31 @@ export default function Playlist (props) {
             </>}
           </>
           }
-        </Stack>
-          <div className='mx-auto d-flex justify-content-space-between align-items-center'>
-
-              <Tracklist 
-                resultingTracks={props.generatedTracksProp}
-                addToPlaylistProp={props.tracksOnPlaylistProp}  
-                isListedProp={props.isListedProp}
-                isListedToggleProp={props.isListedToggleProp}
-                handleDeleteFromPlaylistProp={props.handleDeleteFromPlaylistProp}
-              />
-            
-          </div>
+          {props.isListedProp &&
+          <div className='mx-auto'>
+            {/* <div className='Playlist-items mx-2'> */}
+              {props.playlistTracksProp.map(track => {
+                return (
+                  <div key={track.id} className='mb-2 d-flex align-items-center justify-content-space-between'>
+                    <Track 
+                      id={track.id} 
+                      image={track.image}
+                      artist={track.artist}
+                      name={track.name}
+                      album={track.album}
+                      track={track}
+                      trackURI={track.uri}
+                    />
+                    <button 
+                      className='mb-2 btn btn-outline-danger btn-sm mb-2 align-self-flex-end'
+                      onClick={() => {props.deleteFromPlaylistProp(track.id, track.uri)}} 
+                    >Remove</button>
+                    <hr/>
+                  </div>
+                )}
+              )} 
+            {/* </div> */}
+          </div>}
       </Container>
     )
   }
