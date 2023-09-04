@@ -2,6 +2,7 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
 import { useCallback, useEffect, useState } from 'react';
+// import Login from './Login';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import Playlist from './Playlist';
@@ -20,7 +21,7 @@ export default function App() {
   const [playlistURIs, setPlaylistURIs] = useState([])
 
 
-  //Access Token
+  // //Access Token
   const clientId = '624bcc3689ca4e4a9205e0cb5efcf422'; // Insert client ID here.
   const redirectUri = 'http://localhost:3000'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
   // let accessToken;
@@ -36,7 +37,7 @@ export default function App() {
     if (accessTokenMatch && expiresInMatch) {
       setAccessToken(accessTokenMatch[1])
       const expiresIn = Number(expiresInMatch[1])
-      window.setTimeout(() => accessToken = '', expiresIn * 1000);
+      window.setTimeout(() => accessToken = '', (expiresIn - 60) * 1000);
       window.history.pushState('Access Token', null, '/'); // This clears the parameters, allowing us to grab a new access token when it expires.
       return accessToken;
     }
@@ -65,7 +66,7 @@ export default function App() {
         'Authorization': 'Bearer ' + accessToken
       }
     } 
-  fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US&limit=5', searchParameters)
+  fetch('https://api.spotify.com/v1/search?q=' + searchInput + '&type=track&market=US&limit=50', searchParameters)
     .then (promise => promise.json())
     .then(data => {
       if (!data.tracks) {
@@ -195,13 +196,13 @@ export default function App() {
   
   return (
     <div className="App">
-      <Container>
+      <Container className='bg-body-tertiary'>
           
         {/* {accessToken ? <Dashboard code={code}/> : <Login />}  */}
         <header>
-          <h1 style={{marginInline: 'auto', paddingBlock:'20px', color: 'green'}}
+          <h1 style={{marginInline: 'auto', paddingBlock:'30px', color: 'green'}}
             >Ja<span className='highlight' style={{color: 'grey', fontWeight: 'bold'}}>mmm</span>ing</h1>
-          <p style={{marginInline: 'auto', marginBlockEnd: '20px', color: 'grey', fontSize: '20px'}}
+          <p style={{marginInline: 'auto', paddingBlockEnd: '20px', color: 'grey', fontSize: '20px', marginBottom: 0}}
             >Create your customized <span style={{color: 'green', fontWeight: 'bold'}}>Spotify</span> Playlist</p>
         </header>
         <SearchBar 

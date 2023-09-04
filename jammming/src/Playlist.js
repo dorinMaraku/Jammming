@@ -1,60 +1,56 @@
 import React from "react";
-import { Container, Badge, Form, Stack, InputGroup, FormControl, Button} from 'react-bootstrap'
 import Track from "./Track";
 
 export default function Playlist (props) {
     return (
-      <Container>
+      <div className='playlist' style={{marginInline: 'auto', maxWidth: '60%'}}>
           {props.playlistTracksProp.length > 0 && 
-          <>
-            <InputGroup size='sm'>
+          <div className="align-items-center mb-4">
+            <div className='playlist-name input-group input-group-sm mb-2'>
+              <p className='fs-6 text-muted align-self-center pe-3 mb-0 me-auto'>
+                Currently there {props.playlistTracksProp.length > 1 ? 'are' : 'is' } {props.playlistTracksProp.length} {props.playlistTracksProp.length > 1 ? 'items' : 'item' } in: <span  className="fw-bold" style={{color: 'green'}}>{props.playlistNameProp}</span>
+              </p>
               {props.handlePlaylistNameToggle && 
-              <FormControl 
-                size="sm" 
-                type="input" 
-                placeholder="Enter Playlist Name"  
+              <input 
+                className='form-control '
+                type="text" 
+                placeholder="Enter playlist name..."  
+                id='playlist-name'
                 onChange={props.handlePlaylistNameProp}
                 onKeyDown={event => {
                   if(event.key === 'Enter') {
                   props.handlePlaylistNameStatusProp()
-                }}}/>
+                }}}/> 
                 }
-                <Button 
-                  variant={props.handlePlaylistNameToggle ? 'primary' : 'outline-secondary'}
+                <button 
+                  className={`btn rounded-end-1 btn-${props.handlePlaylistNameToggle ? 'primary' : 'outline-secondary'}`}
                   onClick={props.handlePlaylistNameStatusProp}
                   onKeyDown={event => {
                     if(event.key === 'Enter') {
                     props.handlePlaylistNameStatusProp()
                   }}}
-                >{props.handlePlaylistNameToggle ? 'Save' : 'Change Playlist Name'}</Button>
-            </InputGroup>
+                >{props.handlePlaylistNameToggle ? 'Save' : 'Edit Name'}</button>
+                {!props.handlePlaylistNameToggle && 
+                <button 
+                  className={`ms-2 rounded-1 btn btn-sm btn-${props.isListedProp ? 'outline-secondary' : 'outline-primary'}`}
+                  onClick={props.isListedToggleProp}
+                >{props.isListedProp ? 'Close Playlist' : 'Show Playlist'}</button>}
+            </div>
 
             {!props.handlePlaylistNameToggle && 
-            <> 
-              <Form.Text 
-                className='mx-auto'
-                style={{fontWeight: '500', fontSize: '16px'}} 
-              >Currently there {props.playlistTracksProp.length > 1 ? 'are' : 'is' } {props.playlistTracksProp.length} {props.playlistTracksProp.length > 1 ? 'items' : 'item' } in: <Badge className='mb-1' bg='success'>{props.playlistNameProp}</Badge></Form.Text>
-              <Button 
-                size='sm'
-                className='ms-auto'
-                variant={props.isListedProp ? 'outline-secondary' : 'outline-primary'}
-                onClick={props.isListedToggleProp}
-              >{props.isListedProp ? 'Close Playlist' : 'Show Playlist'}</Button>
-              <Button 
+              <button 
+                className='my-3 shadow btn btn-success'
                 onClick={props.handleSaveToSpotifyProp}
-                size='sm'
-                variant='outline-success'
-              >Save to Spotify</Button> 
-            </>}
-          </>
+              >Save to Spotify</button>}
+          </div>
           }
           {props.isListedProp &&
-          <div className='mx-auto'>
-            {/* <div className='Playlist-items mx-2'> */}
+          <div className='playlist-tracks mx-auto'>
               {props.playlistTracksProp.map(track => {
                 return (
-                  <div key={track.id} className='mb-2 d-flex align-items-center justify-content-space-between'>
+                  <div key={track.id}>
+                  <div key={track.id} 
+                    className='d-flex align-items-center bg-body-tertiary rounded shadow mt-1'>
                     <Track 
                       id={track.id} 
                       image={track.image}
@@ -65,15 +61,21 @@ export default function Playlist (props) {
                       trackURI={track.uri}
                     />
                     <button 
-                      className='mb-2 btn btn-outline-danger btn-sm mb-2 align-self-flex-end'
+                      className='btn btn-outline-danger btn-sm shadow px-3 py-0 me-3'
                       onClick={() => {props.deleteFromPlaylistProp(track.id, track.uri)}} 
-                    >Remove</button>
-                    <hr/>
+                    > Remove </button>
                   </div>
+                  <hr className='mt-1'/>
+                </div>
                 )}
               )} 
-            {/* </div> */}
+          {props.playlistTracksProp.length > 5 &&         
+          <button 
+            className='my-3 shadow btn btn-success'
+            onClick={props.handleSaveToSpotifyProp}
+          >Save to Spotify</button> }
           </div>}
-      </Container>
+
+      </div>
     )
   }
