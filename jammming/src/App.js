@@ -2,7 +2,7 @@ import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
 import { useCallback, useEffect, useState } from 'react';
-// import Login from './Login';
+import Login from './Login';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
 import Playlist from './Playlist';
@@ -19,8 +19,7 @@ export default function App() {
   const [playlistNameStatus, setPlaylistNameStatus] = useState(true)
   const [playlistName, setPlaylistName] = useState('New playlist')
   const [playlistURIs, setPlaylistURIs] = useState([])
-
-
+  
   // //Access Token
   const clientId = '624bcc3689ca4e4a9205e0cb5efcf422'; // Insert client ID here.
   const redirectUri = 'http://localhost:3000'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
@@ -195,10 +194,9 @@ export default function App() {
   }
   
   return (
-    <div className="App">
-      <Container className='bg-body-tertiary'>
-          
-        {/* {accessToken ? <Dashboard code={code}/> : <Login />}  */}
+    <div className="App bg-body-tertiary">
+        {!accessToken ? <Login handleTokenProp={getAccessToken} /> : 
+      <Container>
         <header>
           <h1 style={{marginInline: 'auto', paddingBlock:'30px', color: 'green'}}
             >Ja<span className='highlight' style={{color: 'grey', fontWeight: 'bold'}}>mmm</span>ing</h1>
@@ -229,7 +227,8 @@ export default function App() {
           addToPlaylistProp={handleAddToPlaylist}
           deleteFromPlaylistProp={handleDeleteFromPlaylist}
           />
-      </Container>
+          </Container>
+        }
     </div>
   );
 }

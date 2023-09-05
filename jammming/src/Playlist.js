@@ -45,12 +45,12 @@ export default function Playlist (props) {
           </div>
           }
           {props.isListedProp &&
-          <div className='playlist-tracks mx-auto'>
+          <div className='playlist-tracks mx-auto mb-4'>
+            <p className='my-4 py-2 mx-auto text-success-emphasis bg-success-subtle opacity-75 rounded-bottom fs-6'>Tracks on playlist:</p>
               {props.playlistTracksProp.map(track => {
                 return (
                   <div key={track.id}>
-                  <div key={track.id} 
-                    className='d-flex align-items-center bg-body-tertiary rounded shadow mt-1'>
+                  <div className='d-flex align-items-center bg-body-tertiary rounded shadow mt-1'>
                     <Track 
                       id={track.id} 
                       image={track.image}
