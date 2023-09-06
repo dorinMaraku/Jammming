@@ -22,7 +22,7 @@ export default function App() {
   
   // //Access Token
   const clientId = '624bcc3689ca4e4a9205e0cb5efcf422'; // Insert client ID here.
-  const redirectUri = 'http://localhost:3000'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
+  const redirectUri = 'https://jammmingbydm.netlify.app/'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
   // let accessToken;
   
   const getAccessToken = () => {
