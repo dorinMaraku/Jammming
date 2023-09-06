@@ -8,10 +8,9 @@ import SearchResults from './SearchResults';
 import Playlist from './Playlist';
 
 
-// const access_token = new URLSearchParams(window.location.search).get('access_token');
-
 export default function App() {
   const [accessToken, setAccessToken] = useState('')
+  const [accessUrl, setAccessUrl] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [returnedTracks, setReturnedTracks] = useState([])
   const [isListed, setIsListed] = useState(false)
@@ -41,7 +40,7 @@ export default function App() {
       return accessToken;
     }
     else {
-      const accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private&redirect_uri=${redirectUri}`;
+      setAccessUrl(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private&redirect_uri=${redirectUri}`);
       window.location = accessUrl
     }
   } 
@@ -195,7 +194,7 @@ export default function App() {
   
   return (
     <div className="App bg-body-tertiary" style={{minHeight: '100vh'}}>
-        {!accessToken ? <Login handleTokenProp={getAccessToken} /> : 
+        {!accessToken ? <Login handleTokenProp={getAccessToken} accessUrlProp={accessUrl}/> : 
       <Container>
         <header>
           <h1 style={{marginInline: 'auto', paddingBlock:'30px', color: 'green'}}
