@@ -10,7 +10,7 @@ import Playlist from './Playlist';
 
 export default function App() {
   const [accessToken, setAccessToken] = useState('')
-  const [accessUrl, setAccessUrl] = useState('')
+  // const [accessUrl, setAccessUrl] = useState('')
   const [searchInput, setSearchInput] = useState('')
   const [returnedTracks, setReturnedTracks] = useState([])
   const [isListed, setIsListed] = useState(false)
@@ -21,7 +21,8 @@ export default function App() {
   
   // //Access Token
   const clientId = '624bcc3689ca4e4a9205e0cb5efcf422'; // Insert client ID here.
-  const redirectUri = 'https://jammmingbydm.netlify.app'; // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
+  const redirectUri = 'https://jammmingbydm.netlify.app'; // http://localhost:3000 // Have to add this to your accepted Spotify redirect URIs on the Spotify API.
+  let accessUrl;
   // let accessToken;
   
   const getAccessToken = () => {
@@ -40,7 +41,8 @@ export default function App() {
       return accessToken;
     }
     else {
-      setAccessUrl(`https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private&redirect_uri=${redirectUri}`);
+      accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private&redirect_uri=${redirectUri}`;
+      console.log(accessUrl)
       window.location = accessUrl
     }
   } 
