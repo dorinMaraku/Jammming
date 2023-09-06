@@ -194,7 +194,7 @@ export default function App() {
   }
   
   return (
-    <div className="App bg-body-tertiary">
+    <div className="App bg-body-tertiary" style={{minHeight: '100vh'}}>
         {!accessToken ? <Login handleTokenProp={getAccessToken} /> : 
       <Container>
         <header>
