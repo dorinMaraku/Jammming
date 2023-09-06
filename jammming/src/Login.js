@@ -7,8 +7,8 @@ export default function Login (props) {
 
     return (
         <Container className='d-flex justify-content-center align-items-center' style={{minHeight: '100vh'}}>
-            <a className='btn btn-success mt-4' 
-                onClick={props.handleTokenProp}>Login with Spotify</a>
+            <button className='btn btn-success mt-4' 
+                onClick={props.handleTokenProp}>Login with Spotify</button>
         </Container>
     )
 }

@@ -36,7 +36,7 @@ export default function App() {
     if (accessTokenMatch && expiresInMatch) {
       setAccessToken(accessTokenMatch[1])
       const expiresIn = Number(expiresInMatch[1])
-      window.setTimeout(() => accessToken = '', (expiresIn - 60) * 1000);
+      window.setTimeout(() => setAccessToken(''), (expiresIn - 60) * 1000);
       window.history.pushState('Access Token', null, '/'); // This clears the parameters, allowing us to grab a new access token when it expires.
       return accessToken;
     }
