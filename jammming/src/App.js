@@ -1,7 +1,7 @@
 import './App.css'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container } from 'react-bootstrap';
-import { useCallback, useEffect, useState } from 'react';
+import { useState } from 'react';
 import Login from './Login';
 import SearchBar from './SearchBar';
 import SearchResults from './SearchResults';
@@ -55,7 +55,7 @@ export default function App() {
   //serach the input value from query string
   const search = () => {
     // console.log('search for ' + searchInput) 
-    const accessToken = getAccessToken()
+    // const accessToken = getAccessToken()
     // console.log('access token: ' + accessToken)
     //Get request search to get tracks/artists
     const searchParameters = {
