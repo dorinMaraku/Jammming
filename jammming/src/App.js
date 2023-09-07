@@ -42,7 +42,7 @@ export default function App() {
     }
     else {
       accessUrl = `https://accounts.spotify.com/authorize?client_id=${clientId}&response_type=token&scope=playlist-modify-public%20playlist-modify-private%20user-read-playback-state%20user-modify-playback-state%20user-read-email%20user-read-private&redirect_uri=${redirectUri}`;
-      console.log(accessUrl)
+      // console.log(accessUrl)
       window.location = accessUrl
     }
   } 
